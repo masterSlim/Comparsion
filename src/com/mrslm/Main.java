@@ -57,10 +57,10 @@ public class Main {
         }
     }
 
-    private static void test(String inPath, String comparePath) {
+    private static void test(String inPath, String comparedPath) {
         try {
             String referenceFile = FileService.read(inPath.replace("input", "ref_output"));
-            String comparedFile = FileService.read(comparePath);
+            String comparedFile = FileService.read(comparedPath);
             if (!referenceFile.equals(comparedFile)) {
                 System.err.println("Внимание: результат не соответствует образцу");
             }
