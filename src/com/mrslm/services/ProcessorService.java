@@ -4,40 +4,48 @@ import java.util.*;
 
 public class ProcessorService {
 
-    public static Map<Integer, ArrayList<String>> parse(String content) {
+    public static HashMap<String, ArrayList<String>> parse(String content) {
         int counter = 0;
-        Map<Integer, ArrayList<String>> result = new HashMap<>();
+        HashMap<String, ArrayList<String>> result = new HashMap<>();
         ArrayList<String> words;
         String[] lines = content.split("\n");
+        String side = "left";
         for (int i = 0; i < lines.length; i++) {
             if (lines[i].matches("\\d+")) {
-                int lastLine = i+Integer.parseInt(lines[i]);
+                int lastLine = i + Integer.parseInt(lines[i]);
                 words = new ArrayList<>();
-                for (int a = i+1; a <= lastLine; a++) {
+                for (int a = i + 1; a <= lastLine; a++) {
                     words.add(lines[a]);
                     i++;
                 }
-                result.put(counter++, words);
+                result.put(side, words);
+                side = "right";
             }
         }
         return result;
     }
 
-    public static Map<String, String> combine(Map<Integer, ArrayList<String>> parsed) {
+    public static Map<String, String> combine(HashMap<String, ArrayList<String>> parsed) {
         Map<String, String> combination = new LinkedHashMap<>();
-        if((parsed.get(0).size() == 1) && (parsed.get(1).size() == 1)){
-            combination.put(parsed.get(0).get(0), parsed.get(1).get(0));
+        ArrayList<String> left = parsed.get("left");
+        ArrayList<String> right = parsed.get("right");
+        if (left.size() == 1 && right.size() == 1) {
+            combination.put(left.get(0), right.get(0));
             return combination;
         }
-        for (String key : parsed.get(0)) {
-            for (String value : parsed.get(1)) {
-                if (same(key, value)) {
-                    combination.put(key, value);
+        for (int i = 0; i < left.size(); i++) {
+            String l = left.get(i);
+            for (String r : right) {
+                if (same(l, r)) {
+                    combination.put(l, r);
                     break;
                 } else {
-                    combination.put(key, null);
+                    combination.put(l, null);
                 }
             }
+            int leftover = right.size() - left.size();
+            for (int v = 0; v < leftover; v++)
+                combination.put(null, right.get(left.size()+v));
         }
         return combination;
     }
@@ -45,23 +53,25 @@ public class ProcessorService {
     private static boolean same(String reference, String compared) {
         ArrayList<String> refWords = new ArrayList<>(Arrays.asList(reference.split(" ")));
         for (String refWord : refWords) {
-            if (compared.toLowerCase().contains(refWord.toLowerCase())){
+            if(refWord.length()<4) continue;
+            if (compared.toLowerCase().contains(refWord.toLowerCase())) {
                 return true;
-            }else if ((overlap(refWord.toLowerCase(), compared.toLowerCase())) > 0.8){
-                return true;
-            }
+            } else
+                for(String s : compared.split(" ")){
+                    if ((overlap(refWord.toLowerCase(), s.toLowerCase())) > 0.56) return true;
+                }
         }
         return false;
     }
 
     private static double overlap(String reference, String compared) {
-        int a = reference.length();
-        int b = compared.length();
-        int c = 0;
+        double a = reference.length();
+        double b = compared.length();
+        double c = 0;
         Set<Integer> checked = new HashSet<>();
         for (char ch : reference.toCharArray()) {
             int index = compared.indexOf(ch);
-            if ((index > -1) && (!checked.contains(index))){
+            if ((index > -1) && (!checked.contains(index))) {
                 c += 1;
                 checked.add(index);
             }

@@ -19,24 +19,36 @@ public class FileService {
         }
         return sb.toString();
     }
-    public static void write(Map<String, String> content, String fileName){
+
+    public static void write(Map<String, String> content, String fileName) {
         try (PrintWriter out = new PrintWriter(new File(fileName).getAbsoluteFile())) {
             out.print(format(content));
-        } catch (IOException e){
+        } catch (IOException e) {
             System.err.println("Не удалось записать файл");
         }
     }
-    private static String format(Map<String,String> content){
+
+    private static String format(Map<String, String> content) {
         StringBuilder result = new StringBuilder();
+        align(content);
         for (String key: content.keySet()) {
             result.append(key).append(":");
-            if(content.get(key) == null){
+            if (content.get(key) == null) {
                 result.append("?");
-            }else result.append(content.get(key));
+            } else result.append(content.get(key));
             result.append("\n");
-
         }
-
         return result.toString();
     }
+    private static void align(Map<String,String> crooked){
+        for (String key:crooked.keySet()) {
+            String tmp;
+            if(key == null){
+                tmp = crooked.get(null);
+                crooked.remove(key);
+                crooked.put(tmp, null);
+            }
+        }
+    }
+
 }
