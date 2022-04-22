@@ -22,6 +22,7 @@ public class ProcessorService {
                 side = "right";
             }
         }
+        if (result.isEmpty()) throw new NullPointerException("Ошибка при чтении файла. Проверьте, выбран ли файл с неподходящим содержанием");
         return result;
     }
 

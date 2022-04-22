@@ -5,17 +5,18 @@ import java.util.Map;
 
 public class FileService {
 
-    public static String read(String filePath) {
+    public static String read(String inPath) {
+        String fileName = inPath.substring(inPath.lastIndexOf("/")+1);
         StringBuilder sb = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new FileReader(new File(filePath).getAbsoluteFile()))) {
+        try (BufferedReader in = new BufferedReader(new FileReader(new File(inPath).getAbsoluteFile()))) {
             String s;
             while ((s = in.readLine()) != null) {
                 sb.append(s).append("\n");
             }
         } catch (FileNotFoundException e) {
-            System.out.println("Файл не найден. Проверьте, правильно ли указан путь к файлу");
-        } catch (IOException e) {
-            System.out.println("Ошибка чтения файла. Проверьте, используете ли вы подходящий файл txt");
+            throw new RuntimeException(fileName + " не найден. Проверьте, правильно ли указан путь к файлу");
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при чтении файла " + fileName);
         }
         return sb.toString();
     }
@@ -24,7 +25,7 @@ public class FileService {
         try (PrintWriter out = new PrintWriter(new File(fileName).getAbsoluteFile())) {
             out.print(format(content));
         } catch (IOException e) {
-            System.err.println("Не удалось записать файл");
+            throw new RuntimeException("Не удалось записать файл " + fileName);
         }
     }
 
