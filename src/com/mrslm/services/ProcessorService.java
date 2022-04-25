@@ -5,7 +5,6 @@ import java.util.*;
 public class ProcessorService {
 
     public static HashMap<String, ArrayList<String>> parse(String content) {
-        int counter = 0;
         HashMap<String, ArrayList<String>> result = new HashMap<>();
         ArrayList<String> words;
         String[] lines = content.split("\n");
@@ -26,8 +25,8 @@ public class ProcessorService {
         return result;
     }
 
-    public static Map<String, String> combine(HashMap<String, ArrayList<String>> parsed) {
-        Map<String, String> combination = new LinkedHashMap<>();
+    public static LinkedHashMap<String, String> combine(Map<String, ArrayList<String>> parsed) {
+        LinkedHashMap<String, String> combination = new LinkedHashMap<>();
         ArrayList<String> left = parsed.get("left");
         ArrayList<String> right = parsed.get("right");
         if (left.size() == 1 && right.size() == 1) {

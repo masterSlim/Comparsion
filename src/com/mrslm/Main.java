@@ -3,57 +3,67 @@ package com.mrslm;
 import com.mrslm.services.FileService;
 import com.mrslm.services.ProcessorService;
 
-import java.io.*;
-
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class Main {
-    private static final LinkedList<String> inputs = new LinkedList<>(Arrays.asList(
-            "src/com/test/test_input.txt",
-            "src/com/test/test1_input.txt",
-            "src/com/test/test2_input.txt"));
-    private static final String outputs = inputs.get(0).substring(0, inputs.get(0).lastIndexOf("/") + 1) + "result/";
+    private static final LinkedList<String> inputs = new LinkedList<>();
+    private static final LinkedList<String> outputs = new LinkedList<>();
     private static int counter = 0;
 
     public static void main(String[] args) {
         try {
             if (args.length != 0) {
-                inputs.clear();
-                for (String arg : args) {
-                    inputs.add(arg.trim().replace(",", "").replace("\"", ""));
-                }
+                initIO(Arrays.asList(args));
             } else {
                 System.out.println("Введите адрес одного или нескольких файлов, которые следует обработать. Для выхода введите \\q");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 String userInput = reader.readLine();
                 if (userInput.equals("\\q")) System.exit(0);
-                inputs.clear();
-                inputs.addAll(Arrays.asList(userInput.trim().replace(",", "").split(" ")));
+                initIO(Arrays.asList(userInput.trim().split(" ")));
             }
-            {
-                    for (String inPath : inputs) {
-                        String outPath = outputs + "output" + (counter > 0 ? (("_" + counter)) : "") + ".txt";
-                        try {
-                            String content = FileService.read(inPath);
-                            Map<String, String> combined = ProcessorService.combine(ProcessorService.parse(content));
-                            FileService.write(combined, outPath);
-                            counter += 1;
-                            String fileName = inPath.substring(inPath.lastIndexOf("/")+1);
-                            System.out.println(fileName + " успешно обработан. Результат: " + outPath);
-                            //test(inPath, outPath);
-                        }catch (RuntimeException e){
-                            System.out.println(e.getMessage());
-                        }
-                    }
+            for (int i = 0; i < inputs.size(); i++) {
+                String outPath = outputs.get(i) + "output" + (counter > 0 ? (("_" + counter)) : "") + ".txt";
+                try {
+                    String content = FileService.read(inputs.get(i));
+                    Map<String, String> combined = ProcessorService.combine(ProcessorService.parse(content));
+                    FileService.write(combined, outPath);
+                    counter += 1;
+                    String fileName = inputs.get(i).substring(inputs.lastIndexOf("/") + 1);
+                    System.out.println(fileName + " успешно обработан. Результат: " + outPath);
+                    //test(inPath, outPath);
+                } catch (RuntimeException e) {
+                    System.out.println(e.getMessage());
+                }
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             main(args);
-        }finally {
+        } finally {
             args = new String[0];
             main(args);
+        }
+    }
+
+    private static void initIO(List<String> inputPaths) {
+        inputs.clear();
+        outputs.clear();
+        for (String path : inputPaths) {
+            path.trim().replace(",", "").replace("\"", "");
+        }
+        inputs.addAll(inputPaths);
+        for (String input : inputs) {
+            String output = input.substring(0, input.lastIndexOf("/") + 1) + "result/";
+            outputs.add(output);
+            File dir = new File(output);
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
         }
     }
 
